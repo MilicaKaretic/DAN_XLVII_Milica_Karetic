@@ -21,7 +21,7 @@ namespace DAN_XLVII_Milica_Karetic
             if (Program.threads.Any())
                 Console.WriteLine(name + "'s direction is " + direction);
             else
-                Console.WriteLine("There is " + Program.vehicleNum + " cars on the road.");
+                Console.WriteLine("There is " + Program.vehicleNum + " cars on the road.\n");
         }
 
     }
