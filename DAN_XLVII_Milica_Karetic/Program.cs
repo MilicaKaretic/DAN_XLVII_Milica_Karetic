@@ -13,55 +13,33 @@ namespace DAN_XLVII_Milica_Karetic
         public static List<Thread> threads = new List<Thread>();
         public static int carNum;
 
-        //delegate for notification user
-        public  delegate void Notification(int cars, string name, string direction);
-        //event based on that delegate
+        /// <summary>
+        /// delegate for notification user
+        /// </summary>
+        /// <param name="name">Car name</param>
+        /// <param name="direction">Car direction</param>
+        public delegate void Notification(string name, string direction);
+
+        /// <summary>
+        /// event based on that delegate
+        /// </summary>
         public static event Notification onNotification;
-        public static event Notification onNotificationNum;
 
         /// <summary>
         /// Raise an event
         /// </summary>
-        internal static void Notify(int cars, string name, string direction)
+        internal static void Notify(string name, string direction)
         {
             if (onNotification != null)
             {
-                onNotification(cars, name, direction);
+                onNotification(name, direction);
             }
-
-        }
-
-        /// <summary>
-        /// Raise an event
-        /// </summary>
-        internal static void NotifyNum(int cars, string name, string direction)
-        {
-            if (onNotificationNum != null)
-            {
-                onNotificationNum(cars, name, direction);
-            }
-
-        }
-        /// <summary>
-        /// Notification message
-        /// </summary>
-        internal static void NotifyUser(int cars, string name, string direction)
-        {
-            Console.WriteLine(name + " is going " + direction);
-        }
-
-        /// <summary>
-        /// Notification message
-        /// </summary>
-        internal static void NotifyCarsNum(int cars, string name, string direction)
-        {
-            Console.WriteLine("There is " + cars + " cars on the road.");
-        }
-
+        }    
 
         public static void Go()
         {
             string currentThread = Thread.CurrentThread.Name;
+
             int dir = rnd.Next(0, 2);
             string direction = "";
 
@@ -69,16 +47,18 @@ namespace DAN_XLVII_Milica_Karetic
                 direction = "North";
             else
                 direction = "South";
-            onNotification = NotifyUser;
-            Notify(carNum, currentThread, direction);
+
+            Notify(currentThread, direction);
             
         }
 
         static void Main(string[] args)
-        {
+        {          
+            NotifyPassingCars not = new NotifyPassingCars();
             carNum = rnd.Next(1, 16);
-            onNotificationNum = NotifyCarsNum;
-            NotifyNum(carNum, "", "");
+
+            onNotification = not.NotifyUser;
+            Notify("", "");
 
             for (int i = 0; i < carNum; i++)
             {
