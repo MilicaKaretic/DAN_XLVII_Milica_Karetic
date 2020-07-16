@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DAN_XLVII_Milica_Karetic
 {
-    class NotifyPassingCars
+    class NotifyPassingVehicles
     {
         /// <summary>
         /// Notification message
@@ -14,9 +14,9 @@ namespace DAN_XLVII_Milica_Karetic
         internal void NotifyUser(string name, string direction)
         {
             if (Program.threads.Any())
-                Console.WriteLine(name + " is going " + direction);
+                Console.WriteLine(name + "'s direction is " + direction);
             else
-                Console.WriteLine("There is " + Program.carNum + " cars on the road.");
+                Console.WriteLine("There is " + Program.vehicleNum + " cars on the road.");
         }
 
     }

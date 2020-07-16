@@ -11,7 +11,22 @@ namespace DAN_XLVII_Milica_Karetic
     {
         public static Random rnd = new Random();
         public static List<Thread> threads = new List<Thread>();
-        public static int carNum;
+        public static int vehicleNum;
+        private static readonly object locker = new object();
+        static int count = 0;
+
+        /// <summary>
+        /// Letting vehicles set the direction in case there was an vehicle on the opposite side
+        /// </summary>
+        private static EventWaitHandle waitingDirection = new AutoResetEvent(true);
+        /// <summary>
+        /// Vehicle can enter the bridge
+        /// </summary>
+        public static EventWaitHandle nextVehicle = new AutoResetEvent(true);
+
+        public static string currentDirection = "";
+
+        public static int cntFirst = 0;
 
         /// <summary>
         /// delegate for notification user
@@ -43,32 +58,95 @@ namespace DAN_XLVII_Milica_Karetic
             int dir = rnd.Next(0, 2);
             string direction = "";
 
+            //setting vehicles direction
             if (dir == 0)
                 direction = "North";
             else
                 direction = "South";
 
             Notify(currentThread, direction);
-            
+
+            //wait all vehicles to get directions
+            lock (locker)
+            {
+                count++;
+            }
+            while (count < vehicleNum)
+            {
+                Thread.Sleep(0);
+            }
+
+            //let first vehicle to pass the road
+            nextVehicle.WaitOne();
+
+            //passing road
+            PassingRoad(direction);
         }
 
+        /// <summary>
+        /// Method for passing road
+        /// </summary>
+        /// <param name="direction">Vehicle's direction</param>
+        public static void PassingRoad(string direction)
+        {          
+            // just first vehicle can pass and set the initial direction
+            waitingDirection.WaitOne();
+
+            //first vehicle
+            if (cntFirst == 0)
+            {
+                //first vehicle will increase counter and other vehicles will skip this if condition
+                cntFirst++;
+                //set initial direction to first vehicle's direcion
+                currentDirection = direction;
+                Console.WriteLine(Thread.CurrentThread.Name + " is going " + direction);
+                //indicates that now other vehicles also can pass the road if their direction is ok
+                waitingDirection.Set();
+                //next vehicle can enter the bridge
+                nextVehicle.Set();
+                //passing the road
+                Thread.Sleep(500);
+            }
+            else if (currentDirection == direction)
+            {
+                Console.WriteLine(Thread.CurrentThread.Name + " is going " + direction);
+                waitingDirection.Set();
+                nextVehicle.Set();
+                Thread.Sleep(500);
+            }
+            else
+            {
+                Console.WriteLine(Thread.CurrentThread.Name + " is waiting to pass the bridge from {0} side.", direction);
+                //change direction in which vehicles can go to the current vehicle's direction
+                currentDirection = direction;
+                //passing the road
+                Thread.Sleep(500);
+                waitingDirection.Set();
+                //this vehicle can pass the road when nextVehicle event is set
+                PassingRoad(direction);
+            }          
+        }
         static void Main(string[] args)
         {          
-            NotifyPassingCars not = new NotifyPassingCars();
-            carNum = rnd.Next(1, 16);
+            
+            NotifyPassingVehicles not = new NotifyPassingVehicles();
+            vehicleNum = rnd.Next(1, 16);
 
+            //notify user about total number of created vehicles
             onNotification = not.NotifyUser;
             Notify("", "");
 
-            for (int i = 0; i < carNum; i++)
+            //create vehicles
+            for (int i = 0; i < vehicleNum; i++)
             {
                 Thread t = new Thread(new ThreadStart(Go))
                 {
-                    Name = string.Format("Car_{0}", i + 1)
+                    Name = string.Format("Vehicle_{0}", i + 1)
                 };
                 threads.Add(t);
             }
 
+            //start vehicles
             for (int i = 0; i < threads.Count; i++)
             {
                 threads[i].Start();
@@ -79,7 +157,7 @@ namespace DAN_XLVII_Milica_Karetic
             }
 
             Console.ReadLine();
-            Console.WriteLine();
+
         }
     }
 }
