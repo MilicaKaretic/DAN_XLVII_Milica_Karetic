@@ -11,9 +11,13 @@ namespace DAN_XLVII_Milica_Karetic
     class Program
     {
         public static Random rnd = new Random();
+        //list of vehicles
         public static List<Thread> threads = new List<Thread>();
+        //random generated number of vehicles
         public static int vehicleNum;
+        //object to lock
         private static readonly object locker = new object();
+        //counter for locking
         static int count = 0;
 
         /// <summary>
@@ -21,12 +25,14 @@ namespace DAN_XLVII_Milica_Karetic
         /// </summary>
         private static EventWaitHandle waitingDirection = new AutoResetEvent(true);
         /// <summary>
-        /// Vehicle can enter the bridge
+        /// Vehicle can pass the road
         /// </summary>
         public static EventWaitHandle nextVehicle = new AutoResetEvent(true);
 
+        //current direction
         public static string currentDirection = "";
 
+        //counter for first vehicle to pass the road
         public static int cntFirst = 0;
 
         /// <summary>
@@ -52,6 +58,9 @@ namespace DAN_XLVII_Milica_Karetic
             }
         }    
 
+        /// <summary>
+        /// Method that vehicles call when they start
+        /// </summary>
         public static void Go()
         {
             string currentThread = Thread.CurrentThread.Name;
@@ -127,6 +136,7 @@ namespace DAN_XLVII_Milica_Karetic
                 PassingRoad(direction);
             }          
         }
+
         static void Main(string[] args)
         {
             Stopwatch s = new Stopwatch();
@@ -155,6 +165,7 @@ namespace DAN_XLVII_Milica_Karetic
             {
                 threads[i].Start();
             }
+            //join them
             for (int i = 0; i < threads.Count; i++)
             {
                 threads[i].Join();
@@ -163,11 +174,16 @@ namespace DAN_XLVII_Milica_Karetic
             //end stopwatch after all threads finished their job
             s.Stop();
 
+            //write time to console
             WriteApplicationTime(s);
 
             Console.ReadLine();
         }
 
+        /// <summary>
+        /// Write application duration
+        /// </summary>
+        /// <param name="s">Stopwatch</param>
         public static void WriteApplicationTime(Stopwatch s)
         {
             TimeSpan ts = s.Elapsed;
