@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -127,8 +128,11 @@ namespace DAN_XLVII_Milica_Karetic
             }          
         }
         static void Main(string[] args)
-        {          
-            
+        {
+            Stopwatch s = new Stopwatch();
+            //start stopwatch 
+            s.Start();
+
             NotifyPassingVehicles not = new NotifyPassingVehicles();
             vehicleNum = rnd.Next(1, 16);
 
@@ -156,8 +160,22 @@ namespace DAN_XLVII_Milica_Karetic
                 threads[i].Join();
             }
 
-            Console.ReadLine();
+            //end stopwatch after all threads finished their job
+            s.Stop();
 
+            WriteApplicationTime(s);
+
+            Console.ReadLine();
+        }
+
+        public static void WriteApplicationTime(Stopwatch s)
+        {
+            TimeSpan ts = s.Elapsed;
+
+            // Format and display the TimeSpan value.
+            string elapsedTime = String.Format("{0:00}:{1:00}", ts.Seconds, ts.Milliseconds);
+            //write time to console
+            Console.WriteLine("\nRunTime ---> " + elapsedTime);
         }
     }
 }
